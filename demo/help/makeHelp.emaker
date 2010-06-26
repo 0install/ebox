@@ -1,0 +1,3 @@
+def makeHelp(msg) {
+  traceln(`hint: $msg`)
+}

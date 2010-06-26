@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<interface xmlns="http://zero-install.sourceforge.net/2004/injector/interface">
+  <name>ebox</name>
+  <summary>instance manager for E programs</summary>
+  <description>
+ebox installs instances of E programs. Each program runs with access, by
+default, only to its own instance directory. The code is separate; managed by
+Zero Install.</description>
+  <implementation id="." main="ebox.py" version="0.1-pre">
+    <requires interface='http://repo.roscidus.com/e/e-swt'>
+      <environment name='EBOX_RUNE' insert='rune'/>
+    </requires>
+  </implementation>
+</interface>

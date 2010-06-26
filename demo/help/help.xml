@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<interface xmlns="http://zero-install.sourceforge.net/2004/injector/interface">
+  <name>help</name>
+  <summary>E help viewer</summary>
+  <description>
+</description>
+  <implementation id="." version="0.1-pre"/>
+</interface>
