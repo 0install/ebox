@@ -27,13 +27,15 @@ for uri => deps in dependencies {
 		envExtras[`${name}__uriGetter`] := loaders[dep_iface][0]
 	}
 	def rx`.*/(@{leaf}[^/]+)` := uri
-	traceln(`new loader $leaf from $uri with $envExtras`)
+	#traceln(`new loader $leaf from $uri with $envExtras`)
 	bind loader := makeELoader(<file:/>[locations[uri]], envExtras.snapshot(), `$leaf$$`)
 	loaders[uri][1].resolve(loader)
 }
 
+var nWindows := 0
+
 def powerbox {
-	to openShell(title) {
+	to makeShell() {
 		# Open the main window
 		def SWT := <swt:makeSWT>
 		def <widget> := <swt:widgets.*>
@@ -44,15 +46,23 @@ def powerbox {
 		swtGrid`$shell: $panel.X.Y`
 		shell.getLayout().setMarginWidth(0)
 		shell.getLayout().setMarginHeight(0)
+		var menuBar := null
 		def shellFacet {
 			to setText(title :String) {
 				shell.setText(`$petName: $title`)
 			}
 
-			to addMenuBar() {
-				def menuBar := <widget:makeMenu>(shell, SWT.getBAR())
-				shell.setMenuBar(menuBar)
-				return menuBar
+			to addMenu(name :String) {
+				if (menuBar == null) {
+					menuBar := <widget:makeMenu>(shell, SWT.getBAR())
+					shell.setMenuBar(menuBar)
+				}
+				def menuHeader := <widget:makeMenuItem>(menuBar, SWT.getCASCADE())
+				menuHeader.setText(name)
+				def menu := <widget:makeMenu>(shell, SWT.getDROP_DOWN())
+				menuHeader.setMenu(menu)
+
+				return menu
 			}
 
 			to getPanel() {
@@ -65,9 +75,34 @@ def powerbox {
 				})
 			}
 
+			to openFile(target) {
+				def dialog := <widget:makeFileDialog>(shell, SWT.getOPEN())
+				def selected := dialog.open()
+				if (selected != null) {
+					target.open(<file>[selected].deepReadOnly())
+				}
+			}
+
+			to saveFile(source) {
+				def dialog := <widget:makeFileDialog>(shell, SWT.getSAVE())
+				dialog.setFileName(source.getDefaultFilename())
+				def selected := dialog.open()
+				if (selected != null) {
+					source.saveAs(<file>[selected])
+				}
+			}
+
+			to open() {
+				shell.open()
+				nWindows += 1
+			}
 		}
-		shellFacet.setText(title)
-		shell.open()
+		shellFacet.whenDisposed(fn {
+			nWindows -= 1
+			if (nWindows == 0) {
+				interp.continueAtTop()
+			}
+		})
 		return shellFacet
 	}
 }

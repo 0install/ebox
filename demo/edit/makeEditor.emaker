@@ -1,3 +1,54 @@
-def makeEditor() {
-	traceln("makeEditor")
+def <swt> := <import:org.eclipse.swt.*>
+def <widget> := <swt:widgets.*>
+def SWT := <swt:makeSWT>
+def <swttools> := <import:org.erights.e.ui.swt.*>
+def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
+
+def makeEditor(powerbox, var myFile) {
+	def shell := powerbox.makeShell()
+	shell.open()
+
+	def textArea := <widget:makeText>(shell.getPanel(), SWT.getMULTI())
+
+	if (myFile != null) {
+		textArea.setText(myFile.getText())
+	}
+
+	def updateTitle() {
+		if (myFile == null) {
+			shell.setText("<untitle>")
+		} else {
+			shell.setText(myFile.getPlatformPath())
+		}
+	}
+	updateTitle()
+
+	def editor {
+		to open(file) {
+			if (myFile == null && textArea.getText() == "") {
+				textArea.setText(file.getText())
+				myFile := file
+				updateTitle()
+			} else {
+				makeEditor(powerbox, file)
+			}
+		}
+	}
+
+	def fileMenu := shell.addMenu("&File")
+
+	def openItem := <widget:makeMenuItem>(fileMenu, SWT.getPUSH())
+	openItem.setText("&Open")
+	openItem.addSelectionListener(def _ {
+		to widgetSelected(ev) {
+			shell.openFile(editor)
+		}
+	})
+
+	def mainArea := shell.getPanel()
+
+	swtGrid`$mainArea: $textArea.X.Y`
+	mainArea.getLayout().setMarginWidth(0)
+	mainArea.getLayout().setMarginHeight(0)
+
 }

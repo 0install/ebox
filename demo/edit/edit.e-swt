@@ -1,24 +1,4 @@
-def <swt> := <import:org.eclipse.swt.*>
-def <widget> := <swt:widgets.*>
-def SWT := <swt:makeSWT>
-def <swttools> := <import:org.erights.e.ui.swt.*>
-def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
+def main := <this:makeEditor>(powerbox, null)
 
-def shell := powerbox.openShell("<untitled>")
-shell.whenDisposed(fn { interp.continueAtTop() } )
-
-def menuBar := shell.addMenuBar()
-
-def fileMenuHeader := <widget:makeMenuItem>(menuBar, SWT.getCASCADE())
-fileMenuHeader.setText("&File");
-
-def mainArea := shell.getPanel()
-
-def textArea := <widget:makeText>(mainArea, SWT.getMULTI())
-swtGrid`$mainArea: $textArea.X.Y`
-mainArea.getLayout().setMarginWidth(0)
-mainArea.getLayout().setMarginHeight(0)
-
-def main := <this:makeEditor>()
-
+# will continue when all windows are closed
 interp.blockAtTop()
