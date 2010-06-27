@@ -1,0 +1,12 @@
+def shell := powerbox.openShell("<untitled>")
+shell.addDisposeListener(def _ {
+	to widgetDisposed(event) { interp.continueAtTop() }
+})
+
+println(`hello!`)
+
+<help:makeHelp>("Edit's Help text")
+
+def main := <this:makeEditor>()
+
+interp.blockAtTop()

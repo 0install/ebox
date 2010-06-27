@@ -1,0 +1,78 @@
+println("E initialised")
+
+def makeTraceln := <unsafe:org.erights.e.elib.debug.makeTraceln>
+def makeELoader := <elang:interp.ELoaderAuthor>(makeTraceln)
+
+def [json] := interp.getArgs()
+println(json)
+
+def jsonSurgeon := <elib:serial.deJSONKit>.makeSurgeon()
+def launchData := jsonSurgeon.unserialize(json)
+def [ => locations, => dependencies, => args, => mainURI, => main, => petName ] := launchData
+println(launchData)
+
+# Create a loader for each module...
+
+# URI -> (promise, resolver)
+def loaders := [].asMap().diverge()
+for uri => path in locations {
+	loaders[uri] := Ref.promise()
+}
+
+for uri => deps in dependencies {
+	def loader
+	def envExtras := ["this__uriGetter" => loader].diverge()
+	for [name, dep_iface] in deps {
+		envExtras[`${name}__uriGetter`] := loaders[dep_iface][0]
+	}
+	def rx`.*/(@{leaf}[^/]+)` := uri
+	traceln(`new loader $leaf from $uri with $envExtras`)
+	bind loader := makeELoader(<file:/>[locations[uri]], envExtras.snapshot(), `$leaf$$`)
+	loaders[uri][1].resolve(loader)
+}
+
+# TODO: would like to give timeMachine, but can't let the instance choose the file, so we'll
+# have to wrap it and store it outside the data directory.
+
+def topScope := safeScope.getState().diverge()
+for name in [
+	"captp__uriGetter",
+	"stdout",
+	"stderr",
+	"stdin",
+	"print",
+	"println",
+	"interp",
+	"entropy",
+	"timer",
+	"introducer",
+	"identityMgr",
+	"makeSturdyRef",
+	# "currentVat",		(not useful until we allow creating vats)
+] {
+	topScope[name] := privilegedScope[name]
+}
+
+if (main =~ `@_.e-swt`) {
+	def powerbox {
+		to openShell(title) {
+			# Open the main window
+			def <widget> := <swt:widgets.*>
+			def shell := <widget:makeShell>(currentDisplay)
+			def shellFacet extends shell {
+				to setText(title :String) {
+					super.setText(`$petName: $title`)
+				}
+			}
+			shellFacet.setText(title)
+			shell.open()
+			return shellFacet
+		}
+	}
+
+	topScope["powerbox"] := powerbox
+}
+
+def makeScope := <unsafe:org.erights.e.elang.scope.makeScope>
+
+loaders[mainURI][0].getWithBase(main, makeScope.fromState(topScope.snapshot(), "top$"))

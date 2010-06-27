@@ -5,7 +5,7 @@
   <summary>E text editor</summary>
   <description>
   </description>
-  <implementation id="." version="0.1-pre" e:main='edit.e'>
+  <implementation id="." version="0.1-pre" e:main='edit.e-swt'>
     <requires interface='/home/talex/Projects/zero-install/ebox/demo/help/help.xml'>
       <environment name='help' insert=''/>
     </requires>

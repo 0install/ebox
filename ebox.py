@@ -36,7 +36,7 @@ try:
 	apprun = options.apprun
 	if apprun:
 		# Run existing app-dir
-		appdir = os.path.dirname(apprun)
+		appdir = os.path.dirname(os.path.realpath(apprun))
 		print "Running E instance", appdir
 		with open(os.path.join(appdir, 'uri')) as uri_stream:
 			uri = uri_stream.read()
@@ -67,11 +67,12 @@ try:
 			'locations': locations,
 			'dependencies': dependencies,
 			'args': args,
-			'main_uri': uri,
+			'mainURI': uri,
 			'main': main,
+			'petName': os.path.basename(appdir),
 		}
 
-		e_runner = os.path.join(os.path.dirname(__file__), 'eboxRunner.e')
+		e_runner = os.path.join(os.path.dirname(__file__), 'eboxRunner.e-swt')
 		rune = os.environ['EBOX_RUNE']
 		os.execv(rune, [rune, e_runner, json.dumps(launch_data)])
 		assert 0
@@ -90,6 +91,9 @@ try:
 		sels = ensure_cached(uri)
 
 		os.mkdir(appdir)
+		os.mkdir(os.path.join(appdir, "config"))
+		os.mkdir(os.path.join(appdir, "data"))
+		os.mkdir(os.path.join(appdir, "auth"))
 
 		with open(os.path.join(appdir, 'uri'), 'w') as uri_stream:
 			uri_stream.write(uri)
