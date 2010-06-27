@@ -4,6 +4,7 @@ shell.addDisposeListener(def _ {
 })
 
 println(`hello!`)
+println(`I have: ${<data>.listFiles()}`)
 
 <help:makeHelp>("Edit's Help text")
 

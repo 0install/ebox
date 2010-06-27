@@ -2,7 +2,7 @@
 
 version = '0.1'
 
-import os, sys, json
+import os, sys, json, shutil
 from optparse import OptionParser
 
 from zeroinstall import SafeException
@@ -32,6 +32,7 @@ if options.version:
 	print "For more information about these matters, see the file named COPYING."
 	sys.exit(0)
 
+my_dir = os.path.dirname(__file__)
 try:
 	apprun = options.apprun
 	if apprun:
@@ -42,7 +43,6 @@ try:
 			uri = uri_stream.read()
 		print "Selecting", uri
 		sels = ensure_cached(uri)
-		sels_xml = sels.toDOM().toxml('utf-8')
 
 		locations = {}
 		dependencies = {}
@@ -69,11 +69,12 @@ try:
 			'args': args,
 			'mainURI': uri,
 			'main': main,
-			'petName': os.path.basename(appdir),
+			'instancePath': appdir,
 		}
 
-		e_runner = os.path.join(os.path.dirname(__file__), 'eboxRunner.e-swt')
+		e_runner = os.path.join(my_dir, 'eboxRunner.e-swt')
 		rune = os.environ['EBOX_RUNE']
+		print "Loading E..."
 		os.execv(rune, [rune, e_runner, json.dumps(launch_data)])
 		assert 0
 	else:
@@ -93,10 +94,12 @@ try:
 		os.mkdir(appdir)
 		os.mkdir(os.path.join(appdir, "config"))
 		os.mkdir(os.path.join(appdir, "data"))
-		os.mkdir(os.path.join(appdir, "auth"))
 
 		with open(os.path.join(appdir, 'uri'), 'w') as uri_stream:
 			uri_stream.write(uri)
+
+		shutil.copyfile(os.path.join(my_dir, 'defaultAuths.e'), 
+				 os.path.join(appdir, 'defaultAuths.e'))
 
 		apprun_path = os.path.join(appdir, 'AppRun')
 		with open(apprun_path, 'w') as apprun:

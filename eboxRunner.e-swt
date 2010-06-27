@@ -4,12 +4,13 @@ def makeTraceln := <unsafe:org.erights.e.elib.debug.makeTraceln>
 def makeELoader := <elang:interp.ELoaderAuthor>(makeTraceln)
 
 def [json] := interp.getArgs()
-println(json)
 
 def jsonSurgeon := <elib:serial.deJSONKit>.makeSurgeon()
 def launchData := jsonSurgeon.unserialize(json)
-def [ => locations, => dependencies, => args, => mainURI, => main, => petName ] := launchData
-println(launchData)
+def [ => locations, => dependencies, => args, => mainURI, => main, => instancePath ] := launchData
+
+def <instance> := <file>[instancePath]
+def petName := <instance>.getName()
 
 # Create a loader for each module...
 
@@ -31,48 +32,28 @@ for uri => deps in dependencies {
 	loaders[uri][1].resolve(loader)
 }
 
-# TODO: would like to give timeMachine, but can't let the instance choose the file, so we'll
-# have to wrap it and store it outside the data directory.
-
-def topScope := safeScope.getState().diverge()
-for name in [
-	"captp__uriGetter",
-	"stdout",
-	"stderr",
-	"stdin",
-	"print",
-	"println",
-	"interp",
-	"entropy",
-	"timer",
-	"introducer",
-	"identityMgr",
-	"makeSturdyRef",
-	# "currentVat",		(not useful until we allow creating vats)
-] {
-	topScope[name] := privilegedScope[name]
-}
-
-if (main =~ `@_.e-swt`) {
-	def powerbox {
-		to openShell(title) {
-			# Open the main window
-			def <widget> := <swt:widgets.*>
-			def shell := <widget:makeShell>(currentDisplay)
-			def shellFacet extends shell {
-				to setText(title :String) {
-					super.setText(`$petName: $title`)
-				}
+def powerbox {
+	to openShell(title) {
+		# Open the main window
+		def <widget> := <swt:widgets.*>
+		def shell := <widget:makeShell>(currentDisplay)
+		def shellFacet extends shell {
+			to setText(title :String) {
+				super.setText(`$petName: $title`)
 			}
-			shellFacet.setText(title)
-			shell.open()
-			return shellFacet
 		}
+		shellFacet.setText(title)
+		shell.open()
+		return shellFacet
 	}
-
-	topScope["powerbox"] := powerbox
 }
+
+def eParser := <elang:syntax.makeEParser>
+def defaultAuthsCode := eParser(<instance:defaultAuths.e>.getTwine())
+def defaultAuths := defaultAuthsCode.eval(privilegedScope.with([=> <instance>, => powerbox])).diverge()
 
 def makeScope := <unsafe:org.erights.e.elang.scope.makeScope>
+def topScope := makeScope.fromState(safeScope.getState() | defaultAuths, "top$")
 
-loaders[mainURI][0].getWithBase(main, makeScope.fromState(topScope.snapshot(), "top$"))
+println("Starting...")
+loaders[mainURI][0].getWithBase(main, topScope)
