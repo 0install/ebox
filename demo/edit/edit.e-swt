@@ -1,12 +1,23 @@
+def <swt> := <import:org.eclipse.swt.*>
+def <widget> := <swt:widgets.*>
+def SWT := <swt:makeSWT>
+def <swttools> := <import:org.erights.e.ui.swt.*>
+def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
+
 def shell := powerbox.openShell("<untitled>")
-shell.addDisposeListener(def _ {
-	to widgetDisposed(event) { interp.continueAtTop() }
-})
+shell.whenDisposed(fn { interp.continueAtTop() } )
 
-println(`hello!`)
-println(`I have: ${<data>.listFiles()}`)
+def menuBar := shell.addMenuBar()
 
-<help:makeHelp>("Edit's Help text")
+def fileMenuHeader := <widget:makeMenuItem>(menuBar, SWT.getCASCADE())
+fileMenuHeader.setText("&File");
+
+def mainArea := shell.getPanel()
+
+def textArea := <widget:makeText>(mainArea, SWT.getMULTI())
+swtGrid`$mainArea: $textArea.X.Y`
+mainArea.getLayout().setMarginWidth(0)
+mainArea.getLayout().setMarginHeight(0)
 
 def main := <this:makeEditor>()
 

@@ -35,12 +35,36 @@ for uri => deps in dependencies {
 def powerbox {
 	to openShell(title) {
 		# Open the main window
+		def SWT := <swt:makeSWT>
 		def <widget> := <swt:widgets.*>
 		def shell := <widget:makeShell>(currentDisplay)
-		def shellFacet extends shell {
+		def <swttools> := <import:org.erights.e.ui.swt.*>
+		def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
+		def panel := <widget:makeComposite>(shell, 0)
+		swtGrid`$shell: $panel.X.Y`
+		shell.getLayout().setMarginWidth(0)
+		shell.getLayout().setMarginHeight(0)
+		def shellFacet {
 			to setText(title :String) {
-				super.setText(`$petName: $title`)
+				shell.setText(`$petName: $title`)
 			}
+
+			to addMenuBar() {
+				def menuBar := <widget:makeMenu>(shell, SWT.getBAR())
+				shell.setMenuBar(menuBar)
+				return menuBar
+			}
+
+			to getPanel() {
+				return panel
+			}
+
+			to whenDisposed(callback) {
+				shell.addDisposeListener(def _ {
+					to widgetDisposed(event) { callback() }
+				})
+			}
+
 		}
 		shellFacet.setText(title)
 		shell.open()
