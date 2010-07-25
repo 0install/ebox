@@ -5,10 +5,22 @@ def <swttools> := <import:org.erights.e.ui.swt.*>
 def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
 
 def makeEditor(powerbox, var myFile) {
-	def shell := powerbox.makeShell()
-	shell.open()
-
 	var modified := false
+
+	def shell := powerbox.makeShell()
+
+	shell.addCloseListener(fn {
+		if (modified) {
+			def title := if (myFile == null) { "<untitled>" } else { myFile.getPlatformPath() }
+			if (shell.confirm(`File $title contains unsaved data; really quit?`)) {
+				shell.dispose()
+			}
+		} else {
+			shell.dispose()
+		}
+	})
+
+	shell.open()
 
 	def textArea := <widget:makeText>(shell.getPanel(), SWT.getMULTI())
 

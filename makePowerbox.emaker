@@ -58,6 +58,17 @@ def makePowerbox(privilegedScope, petName) {
 					})
 				}
 
+				to addCloseListener(listener) {
+					# SWT crashes if it gets an exception, so do things asynchronously
+					shell.addShellListener(def _ {
+						to shellClosed(ev) {
+							ev.setDoit(false)
+							listener<-run()
+						}
+						match _ {}
+					})
+				}
+
 				to openFile(target) {
 					def dialog := <widget:makeFileDialog>(shell, SWT.getOPEN())
 					def selected := dialog.open()
@@ -110,6 +121,10 @@ def makePowerbox(privilegedScope, petName) {
 						}
 						source.saveAs(<file>[selected])
 					}
+				}
+
+				to confirm(question :String) :boolean {
+					return confirm(shell, question)
 				}
 
 				to open() {
