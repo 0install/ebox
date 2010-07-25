@@ -32,91 +32,29 @@ for uri => deps in dependencies {
 	loaders[uri][1].resolve(loader)
 }
 
-var nWindows := 0
-
-def powerbox {
-	to makeShell() {
-		# Open the main window
-		def SWT := <swt:makeSWT>
-		def <widget> := <swt:widgets.*>
-		def shell := <widget:makeShell>(currentDisplay)
-		def <swttools> := <import:org.erights.e.ui.swt.*>
-		def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
-		def panel := <widget:makeComposite>(shell, 0)
-		swtGrid`$shell: $panel.X.Y`
-		shell.getLayout().setMarginWidth(0)
-		shell.getLayout().setMarginHeight(0)
-		var menuBar := null
-		def shellFacet {
-			to setText(title :String) {
-				shell.setText(`$petName: $title`)
-			}
-
-			to addMenu(name :String) {
-				if (menuBar == null) {
-					menuBar := <widget:makeMenu>(shell, SWT.getBAR())
-					shell.setMenuBar(menuBar)
-				}
-				def menuHeader := <widget:makeMenuItem>(menuBar, SWT.getCASCADE())
-				menuHeader.setText(name)
-				def menu := <widget:makeMenu>(shell, SWT.getDROP_DOWN())
-				menuHeader.setMenu(menu)
-
-				return menu
-			}
-
-			to getPanel() {
-				return panel
-			}
-
-			to whenDisposed(callback) {
-				shell.addDisposeListener(def _ {
-					to widgetDisposed(event) { callback() }
-				})
-			}
-
-			to openFile(target) {
-				def dialog := <widget:makeFileDialog>(shell, SWT.getOPEN())
-				def selected := dialog.open()
-				if (selected != null) {
-					target.open(<file>[selected].deepReadOnly())
-				}
-			}
-
-			to saveFile(source) {
-				def dialog := <widget:makeFileDialog>(shell, SWT.getSAVE())
-				dialog.setFileName(source.getDefaultFilename())
-				def selected := dialog.open()
-				if (selected != null) {
-					source.saveAs(<file>[selected])
-				}
-			}
-
-			to open() {
-				shell.open()
-				nWindows += 1
-			}
-
-			to dispose() {
-				shell.dispose()
-			}
-		}
-		shellFacet.whenDisposed(fn {
-			nWindows -= 1
-			if (nWindows == 0) {
-				interp.continueAtTop()
-			}
-		})
-		return shellFacet
-	}
-}
-
 def eParser := <elang:syntax.makeEParser>
 def defaultAuthsCode := eParser(<instance:defaultAuths.e>.getTwine())
+def powerbox := <this:makePowerbox>(privilegedScope, petName)
 def defaultAuths := defaultAuthsCode.eval(privilegedScope.with([=> <instance>, => powerbox])).diverge()
 
 def makeScope := <unsafe:org.erights.e.elang.scope.makeScope>
 def topScope := makeScope.fromState(safeScope.getState() | defaultAuths, "top$")
 
+def options := [].diverge()
+def fileArgs := [].diverge()
+for arg in args {
+	switch (arg) {
+		match `--@name` {
+			options.push(name)
+		}
+		match `-@shorts` {
+			options.append(shorts)
+		}
+		match _ {
+			fileArgs.push(<file>[arg].deepReadOnly())
+		}
+	}
+}
+
 println("Starting...")
-loaders[mainURI][0].getWithBase(main, topScope)
+loaders[mainURI][0].getWithBase(main, topScope)(options.snapshot(), fileArgs.snapshot())

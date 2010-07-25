@@ -16,14 +16,14 @@ def makeEditor(powerbox, var myFile) {
 
 	def updateTitle() {
 		if (myFile == null) {
-			shell.setText("<untitle>")
+			shell.setText("<untitled>")
 		} else {
 			shell.setText(myFile.getPlatformPath())
 		}
 	}
 	updateTitle()
 
-	def editor {
+	def importExport {
 		to open(file) {
 			if (myFile == null && textArea.getText() == "") {
 				textArea.setText(file.getText())
@@ -33,15 +33,45 @@ def makeEditor(powerbox, var myFile) {
 				makeEditor(powerbox, file)
 			}
 		}
+
+		to getDefaultFilename() {
+			if (myFile == null) {
+				return "textfile.txt"
+			} else {
+				return myFile
+			}
+		}
+
+		to saveAs(file) {
+			file.setText(textArea.getText())
+			myFile := file
+			updateTitle()
+		}
 	}
 
 	def fileMenu := shell.addMenu("&File")
+
+	def newItem := <widget:makeMenuItem>(fileMenu, SWT.getPUSH())
+	newItem.setText("&New")
+	newItem.addSelectionListener(def _ {
+		to widgetSelected(ev) {
+			makeEditor(powerbox, null)
+		}
+	})
 
 	def openItem := <widget:makeMenuItem>(fileMenu, SWT.getPUSH())
 	openItem.setText("&Open")
 	openItem.addSelectionListener(def _ {
 		to widgetSelected(ev) {
-			shell.openFile(editor)
+			shell.openFile(importExport)
+		}
+	})
+
+	def saveItem := <widget:makeMenuItem>(fileMenu, SWT.getPUSH())
+	saveItem.setText("&Save As...")
+	saveItem.addSelectionListener(def _ {
+		to widgetSelected(ev) {
+			shell.saveFile(importExport)
 		}
 	})
 

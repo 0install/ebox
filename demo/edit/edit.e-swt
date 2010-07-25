@@ -1,4 +1,14 @@
-def main := <this:makeEditor>(powerbox, null)
+def makeApplication(options, args) {
+	require(options == [], `Unsupported option: $options`)
 
-# will continue when all windows are closed
-interp.blockAtTop()
+	if (args.size() == 0) {
+		<this:makeEditor>(powerbox, null)
+	} else {
+		for arg in args {
+			<this:makeEditor>(powerbox, arg)
+		}
+	}
+
+	# will continue when all windows are closed
+	interp.blockAtTop()
+}
