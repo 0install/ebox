@@ -1,18 +1,30 @@
+def <swttools> := <import:org.erights.e.ui.swt.*>
+def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
+
+# GUI tools
 def makePowerbox(privilegedScope, petName) {
+	def currentDisplay := privilegedScope["currentDisplay"]
+	def <swt> := privilegedScope["swt__uriGetter"]
+	def <widget> := <swt:widgets.*>
+	def SWT := <swt:makeSWT>
+
 	var nWindows := 0
 	def interp := privilegedScope["interp"]
 	def <file> := privilegedScope["file__uriGetter"]
 
+	def confirm(parent, question) {
+		def box := <widget:makeMessageBox>(parent,
+						SWT.getICON_QUESTION() |
+						SWT.getCANCEL() | SWT.getOK())
+		box.setMessage(question)
+		def resp := box.open()
+		return resp == SWT.getOK()
+	}
+
 	return def powerbox {
 		to makeShell() {
 			# Open the main window
-			def currentDisplay := privilegedScope["currentDisplay"]
-			def <swt> := privilegedScope["swt__uriGetter"]
-			def SWT := <swt:makeSWT>
-			def <widget> := <swt:widgets.*>
 			def shell := <widget:makeShell>(currentDisplay)
-			def <swttools> := <import:org.erights.e.ui.swt.*>
-			def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
 			def panel := <widget:makeComposite>(shell, 0)
 			swtGrid`$shell: $panel.X.Y`
 			shell.getLayout().setMarginWidth(0)
@@ -58,10 +70,13 @@ def makePowerbox(privilegedScope, petName) {
 					def dialog := <widget:makeFileDialog>(shell, SWT.getSAVE())
 					def defaultPath := source.getDefaultFilename()
 
+					var initialSelection := null
+
 					if (defaultPath =~ leaf :String) {
 						require(!leaf.contains('/'), `Default filename cannot contain '/' characters: $leaf`)
 						require(leaf[0] != '.', `Default filename cannot start with '.'`)
 						dialog.setFileName(leaf)
+						# (don't set initialSelection)
 					} else {
 						# getDefaultFilename can specify a particular file, but must prove it can
 						# access it.
@@ -69,15 +84,27 @@ def makePowerbox(privilegedScope, petName) {
 							match [==<file>, =="get", [path]] {
 								# An actual file
 								dialog.setFileName(path)
+								initialSelection := defaultPath
 							}
 							match [file, =="deepReadOnly", []] {
 								# A read-only file
 								dialog.setFileName(<file>.optUnget(file))
+								initialSelection := file
 							}
 						}
 					}
 					def selected := dialog.open()
 					if (selected != null) {
+						def selectedFile := <file>[selected]
+						# Confirm overwriting an existing file, unless it's the file
+						# we started with.
+						if (selectedFile.exists() &&
+							(initialSelection == null ||
+							!(selectedFile <=> initialSelection))) {
+							if (!confirm(shell, `Overwrite existing file $selected?`)) {
+								return
+							}
+						}
 						source.saveAs(<file>[selected])
 					}
 				}
