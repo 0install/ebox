@@ -96,6 +96,10 @@ def powerbox {
 				shell.open()
 				nWindows += 1
 			}
+
+			to dispose() {
+				shell.dispose()
+			}
 		}
 		shellFacet.whenDisposed(fn {
 			nWindows -= 1

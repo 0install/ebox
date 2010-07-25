@@ -1,3 +1,57 @@
-def makeHelp(msg) {
-  traceln(`hint: $msg`)
+def <swt> := <import:org.eclipse.swt.*>
+def <widget> := <swt:widgets.*>
+def SWT := <swt:makeSWT>
+def <swttools> := <import:org.erights.e.ui.swt.*>
+def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
+def Text := <type:org.capml.dom.Text>
+def Element := <type:org.capml.dom.Element>
+
+def style := [
+	"heading" => [ "fontStyle" => SWT.getBOLD() ],
+]
+
+def makeHelp(shell, msg) {
+	def panel := shell.getPanel()
+
+	def text := <swt:custom.makeStyledText>(panel, SWT.getREAD_ONLY() | SWT.getWRAP() | SWT.getBORDER())
+
+	def spacer := <widget:makeLabel>(panel, 0)
+	def close := <widget:makeButton>(panel, SWT.getPUSH())
+	close.setText("&Close")
+	close.addSelectionListener(def _ {
+		to widgetSelected(ev) {
+			shell.dispose()
+		}
+	})
+
+	var i := 0
+
+	def formatText(node, attrs) {
+		for child in node.getChildNodes() {
+			switch (child) {
+				match t :Text {
+					def data := t.getData()
+					text.append(data)
+					if (attrs.size() > 0) {
+						def style := <swt:custom.makeStyleRange>()
+						style.setStart(i)
+						style.setLength(data.size())
+						style.setFontStyle(attrs["fontStyle"])
+						text.setStyleRange(style)
+					}
+					i += data.size()
+				}
+				match e :Element {
+					def newAttrs := style[e.getTagName()] | attrs
+					formatText(e, newAttrs)
+				}
+			}
+		}
+	}
+
+	formatText(msg, [].asMap())
+
+
+	swtGrid`$panel: $text.X.Y
+			$spacer.X $close`
 }

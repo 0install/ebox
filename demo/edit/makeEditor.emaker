@@ -45,10 +45,22 @@ def makeEditor(powerbox, var myFile) {
 		}
 	})
 
+	def helpMenu := shell.addMenu("&Help")
+
+	def manualItem := <widget:makeMenuItem>(helpMenu, SWT.getPUSH())
+	manualItem.setText("&User Guide")
+	manualItem.addSelectionListener(def _ {
+		to widgetSelected(ev) {
+			def shell := powerbox.makeShell()
+			shell.setText("User Guide")
+			shell.open()
+			<help:makeHelp>(shell, <this:manual>)
+		}
+	})
+
 	def mainArea := shell.getPanel()
 
 	swtGrid`$mainArea: $textArea.X.Y`
 	mainArea.getLayout().setMarginWidth(0)
 	mainArea.getLayout().setMarginHeight(0)
-
 }

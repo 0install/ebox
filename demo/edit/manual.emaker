@@ -1,0 +1,6 @@
+sml`<document><heading>Introduction</heading>
+
+This is a simple demonstration text editor. It doesn't do much, but it does run in a sandboxed environment where it can only read the files you ask it to open, and can only write to files you ask it to save to.
+
+Its purpose it to clarify and test the security features of Zero Install (http://0install.net). Your goal is to make a modified version that can break out of the sandbox and access other files.
+</document>`
