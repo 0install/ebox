@@ -72,8 +72,11 @@ def makePowerbox(privilegedScope, petName) {
 
 					var initialSelection := null
 
-					if (defaultPath =~ leaf :String) {
-						require(!leaf.contains('/'), `Default filename cannot contain '/' characters: $leaf`)
+					if (defaultPath =~ s :String) {
+						# Ignore any leading path component - the user must choose the location
+						# if the application doesn't already have access to the file (if it does
+						# have access, it should provde the File object rather than a String).
+						def leaf := <file:.>[s].getName()
 						require(leaf[0] != '.', `Default filename cannot start with '.'`)
 						dialog.setFileName(leaf)
 						# (don't set initialSelection)
