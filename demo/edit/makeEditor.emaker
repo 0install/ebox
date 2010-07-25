@@ -8,6 +8,8 @@ def makeEditor(powerbox, var myFile) {
 	def shell := powerbox.makeShell()
 	shell.open()
 
+	var modified := false
+
 	def textArea := <widget:makeText>(shell.getPanel(), SWT.getMULTI())
 
 	if (myFile != null) {
@@ -15,13 +17,26 @@ def makeEditor(powerbox, var myFile) {
 	}
 
 	def updateTitle() {
-		if (myFile == null) {
-			shell.setText("<untitled>")
+		var title := if (myFile == null) {
+			"<untitled>"
 		} else {
-			shell.setText(myFile.getPlatformPath())
+			myFile.getPlatformPath()
 		}
+		if (modified) {
+			title += " *"
+		}
+		shell.setText(title)
 	}
 	updateTitle()
+
+	textArea.addModifyListener(def _ {
+		to modifyText(ev) {
+			if (!modified) {
+				modified := true
+				updateTitle()
+			}
+		}
+	})
 
 	def importExport {
 		to open(file) {
@@ -45,6 +60,7 @@ def makeEditor(powerbox, var myFile) {
 		to saveAs(file) {
 			file.setText(textArea.getText())
 			myFile := file
+			modified := false
 			updateTitle()
 		}
 	}
@@ -71,7 +87,7 @@ def makeEditor(powerbox, var myFile) {
 	saveItem.setText("&Save")
 	saveItem.addSelectionListener(def _ {
 		to widgetSelected(ev) {
-			if (myFile == null) {
+			if (myFile == null || !myFile.canWrite()) {
 				shell.saveFile(importExport)
 			} else {
 				importExport.saveAs(myFile)
