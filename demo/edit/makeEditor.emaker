@@ -68,8 +68,20 @@ def makeEditor(powerbox, var myFile) {
 	})
 
 	def saveItem := <widget:makeMenuItem>(fileMenu, SWT.getPUSH())
-	saveItem.setText("&Save As...")
+	saveItem.setText("&Save")
 	saveItem.addSelectionListener(def _ {
+		to widgetSelected(ev) {
+			if (myFile == null) {
+				shell.saveFile(importExport)
+			} else {
+				importExport.saveAs(myFile)
+			}
+		}
+	})
+
+	def saveAsItem := <widget:makeMenuItem>(fileMenu, SWT.getPUSH())
+	saveAsItem.setText("Save &As...")
+	saveAsItem.addSelectionListener(def _ {
 		to widgetSelected(ev) {
 			shell.saveFile(importExport)
 		}
