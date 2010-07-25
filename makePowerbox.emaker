@@ -127,6 +127,14 @@ def makePowerbox(privilegedScope, petName) {
 					return confirm(shell, question)
 				}
 
+				to alert(msg :String) :void {
+					def box := <widget:makeMessageBox>(shell,
+									SWT.getICON_ERROR() |
+									SWT.getOK())
+					box.setMessage(msg)
+					box.open()
+				}
+
 				to open() {
 					shell.open()
 					nWindows += 1
