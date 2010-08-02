@@ -73,7 +73,12 @@ def makePowerbox(privilegedScope, petName) {
 					def dialog := <widget:makeFileDialog>(shell, SWT.getOPEN())
 					def selected := dialog.open()
 					if (selected != null) {
-						target.open(<file>[selected].deepReadOnly())
+						try {
+							target.open(<file>[selected].deepReadOnly())
+						} catch ex {
+							traceln(`$ex: ${ex.eStack()}`)
+							shellFacet.alert(`$ex`)
+						}
 					}
 				}
 
@@ -119,7 +124,12 @@ def makePowerbox(privilegedScope, petName) {
 								return
 							}
 						}
-						source.saveAs(<file>[selected])
+						try {
+							source.saveAs(<file>[selected])
+						} catch ex {
+							traceln(`$ex: ${ex.eStack()}`)
+							shellFacet.alert(`$ex`)
+						}
 					}
 				}
 
