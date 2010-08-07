@@ -6,6 +6,14 @@
 ebox installs instances of E programs. Each program runs with access, by
 default, only to its own instance directory. The code is separate; managed by
 Zero Install.</description>
+
+  <feed-for interface='http://0install.net/tests/ebox.xml'/>
+
+  <release:management xmlns:release="http://zero-install.sourceforge.net/2007/namespaces/0release">
+    <!-- Update the copy of the version number in the main program -->
+    <release:action phase="commit-release">sed -i &quot;s/^version = '.*'$/version = '$RELEASE_VERSION'/&quot; ebox.py</release:action>
+  </release:management>
+
   <implementation id="." license="OSI Approved :: GNU Lesser General Public License (LGPL)" main="ebox.py" version="0.1-pre">
     <requires interface="http://repo.roscidus.com/e/e-swt">
       <environment insert="rune" name="EBOX_RUNE"/>

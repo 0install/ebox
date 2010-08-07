@@ -105,7 +105,7 @@ try:
 		apprun_path = os.path.join(appdir, 'AppRun')
 		with open(apprun_path, 'w') as apprun:
 			apprun.write("#!/bin/sh\n")
-			apprun.write('exec 0launch /home/talex/Projects/zero-install/ebox/ebox.xml --run "$0" -- "$@"\n')
+			apprun.write('exec 0launch http://0install.net/tests/ebox.xml --run "$0" -- "$@"\n')
 
 			# Make new script executable
 			os.chmod(apprun_path, 0111 | os.fstat(apprun.fileno()).st_mode)
