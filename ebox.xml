@@ -15,7 +15,7 @@ Zero Install.</description>
     <release:action phase="commit-release">sed -i &quot;s/^version = '.*'$/version = '$RELEASE_VERSION'/&quot; ebox.py</release:action>
   </release:management>
 
-  <implementation id="." license="OSI Approved :: GNU Lesser General Public License (LGPL)" main="ebox.py" version="0.1-post">
+  <implementation id="." license="OSI Approved :: GNU Lesser General Public License (LGPL)" main="ebox.py" released="2010-08-07" version="0.2">
     <requires interface="http://repo.roscidus.com/e/e-swt">
       <environment insert="rune" name="EBOX_RUNE"/>
     </requires>
