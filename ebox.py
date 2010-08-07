@@ -32,6 +32,16 @@ if options.version:
 	print "For more information about these matters, see the file named COPYING."
 	sys.exit(0)
 
+def ensure_no_symlinks(path):
+	# TODO: if we've got a .manifest it might be quicker to check that
+
+	for root, dirs, files in os.walk(path):
+		for item in dirs + files:
+			full = os.path.join(root, item)
+			if os.path.islink(full):
+				# Allows getting read access to the rest of the filesystem
+				raise SafeException("Package file %s is a symlink; this is not currently allowed, sorry!" % full)
+
 my_dir = os.path.dirname(__file__)
 try:
 	apprun = options.apprun
@@ -48,6 +58,8 @@ try:
 		dependencies = {}
 		for uri, impl in sels.selections.items():
 			locations[uri] = _get_implementation_path(impl)
+
+			ensure_no_symlinks(locations[uri])
 
 			my_deps = []
 			for dep in impl.dependencies:
