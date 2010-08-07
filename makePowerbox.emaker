@@ -1,8 +1,9 @@
 def <swttools> := <import:org.erights.e.ui.swt.*>
 def swtGrid__quasiParser := <swttools:swtGridQParserMaker>()
+def makeLazySlot := <elib:slot.makeLazySlot>
 
 # GUI tools
-def makePowerbox(privilegedScope, petName) {
+def makePowerbox(privilegedScope, petName, authsDir) {
 	def currentDisplay := privilegedScope["currentDisplay"]
 	def <swt> := privilegedScope["swt__uriGetter"]
 	def <widget> := <swt:widgets.*>
@@ -11,6 +12,12 @@ def makePowerbox(privilegedScope, petName) {
 	var nWindows := 0
 	def interp := privilegedScope["interp"]
 	def <file> := privilegedScope["file__uriGetter"]
+
+	def &surgeon := makeLazySlot(fn {
+		def s := <elib:serial.makeSurgeon>.withSrcKit("de:").diverge()
+		s.addFromPrivScope(privilegedScope)
+		s
+	})
 
 	def confirm(parent, question) {
 		def box := <widget:makeMessageBox>(parent,
@@ -22,6 +29,24 @@ def makePowerbox(privilegedScope, petName) {
 	}
 
 	return def powerbox {
+		to getAuth(name :String) {
+			return powerbox.fetchAuth(name, fn { throw(`no such authority $name!`) })
+		}
+
+		to fetchAuth(name :String, ifMissing) {
+			def authFile := authsDir[name]
+			if (authFile.exists()) {
+				return surgeon.unserialize(authFile.getText())
+			} else {
+				return ifMissing()
+			}
+		}
+
+		to setAuth(name :String, value) {
+			def authFile := authsDir[name]
+			authFile.setText(surgeon.serialize(value))
+		}
+
 		to makeShell() {
 			# Open the main window
 			def shell := <widget:makeShell>(currentDisplay)
@@ -158,10 +183,10 @@ def makePowerbox(privilegedScope, petName) {
 					if (!confirm(shell, "This program wants access to remote CapTP network services. Allow?")) {
 						throw(`access to CapTP networking denied`)
 					}
-					return def captpNetworking {
-						to introducer() { return privilegedScope["introducer"] }
-						to identityMgr() { return privilegedScope["identityMgr"] }
-					}
+					return [
+						"introducer" => privilegedScope["introducer"],
+						"identityMgr" => privilegedScope["identityMgr"]
+					]
 				}
 			}
 			shellFacet.whenDisposed(fn {

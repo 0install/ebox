@@ -94,6 +94,7 @@ try:
 		os.mkdir(appdir)
 		os.mkdir(os.path.join(appdir, "config"))
 		os.mkdir(os.path.join(appdir, "data"))
+		os.mkdir(os.path.join(appdir, "auths"))
 
 		with open(os.path.join(appdir, 'uri'), 'w') as uri_stream:
 			uri_stream.write(uri)

@@ -34,7 +34,7 @@ for uri => deps in dependencies {
 
 def eParser := <elang:syntax.makeEParser>
 def defaultAuthsCode := eParser(<instance:defaultAuths.e>.getTwine())
-def powerbox := <this:makePowerbox>(privilegedScope, petName)
+def powerbox := <this:makePowerbox>(privilegedScope, petName, <instance:auths>.shallowReadOnly())
 def defaultAuths := defaultAuthsCode.eval(privilegedScope.with([=> <instance>, => powerbox])).diverge()
 
 def makeScope := <unsafe:org.erights.e.elang.scope.makeScope>
