@@ -40,9 +40,9 @@ try:
 		appdir = os.path.dirname(os.path.realpath(apprun))
 		print "Running E instance", appdir
 		with open(os.path.join(appdir, 'uri')) as uri_stream:
-			uri = uri_stream.read()
-		print "Selecting", uri
-		sels = ensure_cached(uri)
+			root_uri = uri_stream.read()
+		print "Selecting", root_uri
+		sels = ensure_cached(root_uri)
 
 		locations = {}
 		dependencies = {}
@@ -59,15 +59,15 @@ try:
 						my_deps.append((b.name, dep.interface))
 			dependencies[uri] = my_deps
 
-		main = sels.selections[uri].attrs.get("http://erights.org/0install main", None)
+		main = sels.selections[root_uri].attrs.get("http://erights.org/0install main", None)
 		if not main:
-			raise SafeException("No emain attribute on %s in %s" % (sels.selections[uri], uri))
+			raise SafeException("No emain attribute on %s in %s" % (sels.selections[root_uri], root_uri))
 
 		launch_data = {
 			'locations': locations,
 			'dependencies': dependencies,
 			'args': args,
-			'mainURI': uri,
+			'mainURI': root_uri,
 			'main': main,
 			'instancePath': appdir,
 		}
