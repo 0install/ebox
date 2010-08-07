@@ -37,10 +37,10 @@ def <data> := <instance:data>.shallowReadOnly()
 # the ability to gain access to new services after being given an
 # capability URI (authorisation code).
 
-	=> captp__uriGetter,
-	=> introducer,
-	=> identityMgr,
-	=> makeSturdyRef,
+	# => captp__uriGetter,
+	# => introducer,
+	# => identityMgr,
+	# => makeSturdyRef,
 
 # Other networking
 
@@ -51,7 +51,8 @@ def <data> := <instance:data>.shallowReadOnly()
 
 
 # The powerbox grants limited access to SWT (the graphical toolkit),
-# the ability to load and save files selected by the user, etc.
+# the ability to load and save files selected by the user, and the
+# ability to ask for extra authority.
 
 	=> powerbox,
 

@@ -153,6 +153,16 @@ def makePowerbox(privilegedScope, petName) {
 				to dispose() {
 					shell.dispose()
 				}
+
+				to requestCapTPNetworking() {
+					if (!confirm(shell, "This program wants access to remote CapTP network services. Allow?")) {
+						throw(`access to CapTP networking denied`)
+					}
+					return def captpNetworking {
+						to introducer() { return privilegedScope["introducer"] }
+						to identityMgr() { return privilegedScope["identityMgr"] }
+					}
+				}
 			}
 			shellFacet.whenDisposed(fn {
 				nWindows -= 1
