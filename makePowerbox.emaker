@@ -97,6 +97,7 @@ def makePowerbox(privilegedScope, petName, authsDir) {
 
 				to openFile(target) {
 					def dialog := <widget:makeFileDialog>(shell, SWT.getOPEN())
+					dialog.setText(`$petName: open file`)
 					def selected := dialog.open()
 					if (selected != null) {
 						try {
@@ -110,6 +111,7 @@ def makePowerbox(privilegedScope, petName, authsDir) {
 
 				to saveFile(source) {
 					def dialog := <widget:makeFileDialog>(shell, SWT.getSAVE())
+					dialog.setText(`$petName: save file`)
 					def defaultPath := source.getDefaultFilename()
 
 					var initialSelection := null
