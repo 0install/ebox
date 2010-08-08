@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-version = '0.2'
+version = '0.3'
 
 import os, sys, json, shutil
 from optparse import OptionParser
