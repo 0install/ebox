@@ -23,6 +23,7 @@ def makePowerbox(privilegedScope, petName, authsDir) {
 		def box := <widget:makeMessageBox>(parent,
 						SWT.getICON_QUESTION() |
 						SWT.getCANCEL() | SWT.getOK())
+		box.setText(petName)
 		box.setMessage(question)
 		def resp := box.open()
 		return resp == SWT.getOK()
