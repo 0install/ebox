@@ -53,6 +53,8 @@ try:
 			root_uri = uri_stream.read()
 		print "Selecting", root_uri
 		sels = ensure_cached(root_uri)
+		if sels is None:
+			sys.exit(1)
 
 		locations = {}
 		dependencies = {}
