@@ -5,6 +5,11 @@ version = '0.3'
 import os, sys, json, shutil
 from optparse import OptionParser
 
+zeroinstall_dir = os.environ.get('EBOX_ZEROINSTALL', None)
+if zeroinstall_dir:
+	sys.path.insert(1, zeroinstall_dir)
+	del os.environ['EBOX_ZEROINSTALL']
+
 from zeroinstall import SafeException
 from zeroinstall.injector import model, iface_cache
 from zeroinstall.helpers import ensure_cached
@@ -52,7 +57,7 @@ try:
 		with open(os.path.join(appdir, 'uri')) as uri_stream:
 			root_uri = uri_stream.read()
 		print "Selecting", root_uri
-		sels = ensure_cached(root_uri)
+		sels = ensure_cached(root_uri, command = 'org.erights/rune')
 		if sels is None:
 			sys.exit(1)
 
@@ -73,9 +78,8 @@ try:
 						my_deps.append((b.name, dep.interface))
 			dependencies[uri] = my_deps
 
-		main = sels.selections[root_uri].attrs.get("http://erights.org/0install main", None)
-		if not main:
-			raise SafeException("No emain attribute on %s in %s" % (sels.selections[root_uri], root_uri))
+		command, = sels.commands
+		main = command.path
 
 		launch_data = {
 			'locations': locations,
