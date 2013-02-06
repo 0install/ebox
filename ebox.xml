@@ -16,6 +16,11 @@ Zero Install.</description>
   </release:management>
 
   <implementation id="." license="OSI Approved :: GNU Lesser General Public License (LGPL)" main="ebox.py" version="0.3-post">
+    <command name='run' path="ebox.py">
+      <runner interface="http://repo.roscidus.com/python/python">
+	<version before='3'/>
+      </runner>
+    </command>
     <requires interface="http://repo.roscidus.com/e/e-swt">
       <environment insert="rune" name="EBOX_RUNE"/>
     </requires>
