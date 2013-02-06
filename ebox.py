@@ -29,7 +29,7 @@ def _get_implementation_path(impl):
 if options.version:
 	import zeroinstall
 	print "ebox (zero-install) " + version
-	print "Copyright (C) 2010 Thomas Leonard"
+	print "Copyright (C) 2013 Thomas Leonard"
 	print "This program comes with ABSOLUTELY NO WARRANTY,"
 	print "to the extent permitted by law."
 	print "You may redistribute copies of this program"
@@ -107,7 +107,7 @@ try:
 		uri = model.canonical_iface_uri(uri)
 
 		# Download it now. Also checks that it's valid.
-		sels = ensure_cached(uri)
+		sels = ensure_cached(uri, command = 'org.erights/rune')
 
 		os.mkdir(appdir)
 		os.mkdir(os.path.join(appdir, "config"))

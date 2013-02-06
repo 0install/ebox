@@ -20,7 +20,7 @@ Zero Install.</description>
       <environment insert="rune" name="EBOX_RUNE"/>
     </requires>
     <requires interface="http://0install.net/2007/interfaces/ZeroInstall.xml">
-      <version not-before="0.50-post"/>
+      <version not-before="1"/>
       <environment insert="" mode="replace" name="EBOX_ZEROINSTALL"/>
     </requires>
   </implementation>
