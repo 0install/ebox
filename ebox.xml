@@ -15,10 +15,10 @@ Zero Install.</description>
     <release:action phase="commit-release">sed -i &quot;s/^version = '.*'$/version = '$RELEASE_VERSION'/&quot; ebox.py</release:action>
   </release:management>
 
-  <implementation id="." license="OSI Approved :: GNU Lesser General Public License (LGPL)" main="ebox.py" version="0.3-post">
-    <command name='run' path="ebox.py">
+  <implementation id="." license="OSI Approved :: GNU Lesser General Public License (LGPL)" main="ebox.py" released="2013-02-26" version="0.4">
+    <command name="run" path="ebox.py">
       <runner interface="http://repo.roscidus.com/python/python">
-	<version before='3'/>
+	<version before="3"/>
       </runner>
     </command>
     <requires interface="http://repo.roscidus.com/e/e-swt">
