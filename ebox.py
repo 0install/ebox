@@ -74,8 +74,15 @@ try:
 				assert not dep_impl.id.startswith('package:'), dep_impl
 				for b in dep.bindings:
 					if isinstance(b, model.EnvironmentBinding):
+						# Old-style binding
 						assert b.insert == ""
 						my_deps.append((b.name, dep.interface))
+					elif isinstance(b, model.GenericBinding):
+						# New-style binding
+						getter = b.qdom.attrs["http://erights.org/0install getter"]
+						my_deps.append((getter, dep.interface))
+					else:
+						print "Warning: unknown binding type:", b
 			dependencies[uri] = my_deps
 
 		command, = sels.commands
